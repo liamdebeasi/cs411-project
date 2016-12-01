@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name = "viewport" content = "width = device-width, user-scalable = no, maximum-scale = 1.0">
+		<meta name="author" content="Liam DeBeasi">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link rel="icon" type="image/png" href="images/favicon.png">  
+		<link rel="apple-touch-icon-precomposed" href="images/apple-icon.png">
+		<link href="css/app.min.css" rel="stylesheet">
+		<title>MySpotifyApp</title>
+    </head>
+	<body>
+    	<div id="canvas-wrapper">
+        	<canvas id="analyser"></canvas>
+    	</div>
+    	<div class="gradient"></div>
+    	
+    	<div class="container-fluid">
+        	<div class="row">
+            	<div class="col-xs-12">
+                	<header>
+                    	<h1>MySpotifyApp</h1>
+                    	<a href="/logout" class="button trans">LOG OUT</a>
+                    	<a href="#" class="button trans">+ COLLABORATIVE PLAYLIST</a>
+                    	<span>
+                        	<div class="avatar" style="background-image: url(<%= profile.images[0].url %>);"></div>
+                        	<p><%= profile.display_name || profile.id %></p>
+                    	</span>                    	
+                	</header>
+            	</div>
+        	</div>
+        	
+        	<% Object.keys(playlists).forEach(function(playlist) { %>
+            	<div class="modal-component hide" id="<%- playlist %>" >
+                    <div class="modal-blocker"></div>
+                    <div class="modal-container">
+                        <div class="row header">
+                            <div class="col-xs-4">
+                                <h1><%- playlist %></h1>
+                            </div>
+                            <div class="col-xs-8">
+                                <a href="#" class="button trans">ADD TO SPOTIFY</a>
+                            </div>
+                        </div>
+                        <ul>
+                            <% playlists[playlist].forEach(function(song) { %>
+                                <li class="odd">
+                                    <div class="album-art" style="background-image: url(<%- song.albumArt %>);"></div>
+                                    <h3><%- song.name %></h3>
+                                    <p><%- song.artist %> &bull; <%- song.album %></p>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                </div> 
+            <% }); %>
+
+        	
+        	<div class="row content">
+            	<div class="col-xs-6 col-md-4">
+                	<section class="trans" id="gym">
+                    	<div class="section-container">
+                        	<div class="icon" id="gym"></div>
+                        	<h2>Gym</h2>
+                    	</div>
+                	</section>
+            	</div>
+            	
+            	<div class="col-xs-6 col-md-4">
+                	<section class="trans" id="sleep">
+                    	<div class="section-container">
+                        	<div class="icon" id="sleep"></div>
+                        	<h2>Sleep</h2>
+                    	</div>
+                	</section>
+            	</div>
+            	
+            	<div class="col-xs-6 col-md-4">
+                	<section class="trans" id="lounge">
+                    	<div class="section-container">
+                        	<div class="icon" id="lounge"></div>
+                        	<h2>Lounge</h2>
+                    	</div>
+                	</section>
+            	</div>
+            	
+            	<div class="col-xs-6 col-md-4">
+                	<section class="trans" id="party">
+                    	<div class="section-container">
+                        	<div class="icon" id="party"></div>
+                        	<h2>Party</h2>
+                    	</div>
+                	</section>
+            	</div>
+
+            	<div class="col-xs-6 col-md-4">
+                	<section class="trans" id="work">
+                    	<div class="section-container">
+                        	<div class="icon" id="work"></div>
+                        	<h2>Work</h2>
+                    	</div>
+                	</section>
+            	</div>
+            	
+            	<div class="col-xs-6 col-md-4">
+                	<section class="trans" id="random">
+                    	<div class="section-container">
+                        	<div class="icon" id="random"></div>
+                        	<h2>Random</h2>
+                    	</div>
+                	</section>
+            	</div>
+            </div>
+    	</div>
+<!--         <script src="js/exclude/visualizer.js"></script> -->
+		<script src="js/min/app.min.js"></script>
+	</body>
+</html>
