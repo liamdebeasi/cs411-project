@@ -35,8 +35,6 @@ jsonfile.readFile(auth, function(err, obj) {
    lookupTW = new twilio.LookupsClient("AC8e40f70c424e498c57399d92a5bd6af6", obj.twilio);
 });
 
-
-
 /**
  * Generates a random string containing numbers and letters
  * @param  {number} length The length of the string
@@ -213,47 +211,9 @@ app.get('/dashboard', function(req, res) {
                 });    
             }
            
-        });
-        
-        // If logged in, get your profile info
-/*
-        var options = {
-            url: 'https://api.spotify.com/v1/me',
-            headers: { 'Authorization': 'Bearer ' + accessToken },
-            json: true
-        };
-        
-        var gymRec = {
-            url: 'https://api.spotify.com/v1/recommendations?market=US&seed_genres=dance,edm,hip-hop,work-out,club&limit=10',
-            headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
-            json: true
-        };
-        
-        // use the access token to access the Spotify Web API
-        request.get(options, function(error, response, body) {            
-            res.render('index.html', { profile: body } );                       
-        }); 
-*/
+        });        
     }  
 });
-
-/*
-app.get('/', function(req, res) {
-    //token expires in an hour?
-    //got this accesstoken from https://developer.spotify.com/web-api/console/get-current-user-saved-tracks/#complete
-    var getUserSongs_AccessToken = 'BQAXe_GoUEG9oOkhH-d5iY2pSyFgUTB5ESJLYEEz5EDyCMqmx-mdsc-zaG0aa7SdxFQxKj0bWNmX617KAxaMG0z9XJ8mbynte6k5H8rlTXfhDb4TvyIM1eXC0_8ySQYKH8F6naHd2QEG8FH10KNAubdJ';
-    var fetchTracks = {
-        url: 'https://api.spotify.com/v1/me/tracks?limit=10',
-        headers: {'Authorization' : 'Bearer ' + getUserSongs_AccessToken},
-        json: true
-    };
-    
-    request.get(fetchTracks, function(error, response, body) {  
-        console.log('DONE',body);      
-        res.render('index.html', { data: response.body });
-    });    
-});
-*/
 
 /**
  * Callback after authorizing
@@ -311,6 +271,17 @@ app.get('/callback', function(req, res) {
   }
 });
 
+/*
+ * Create a playlist, add tracks, and place in user's account
+ * Parameters:
+ * accessToken (string): Spotify Access Token
+ * title (string): Title of the playlist
+ * collaborative (boolean): Whether or not this playlist is collaborative
+ * trackListings (array): Array containing track URIs of songs to be
+ * added to the playlist
+ * numbers (array): Array containing phone numbers to share this playlist
+ * with (if collaborative)
+ */
 app.post('/createPlaylist', function(req, res) {
     
     // first get some profile info
@@ -401,6 +372,12 @@ app.post('/createPlaylist', function(req, res) {
     */
 });
 
+/*
+ * Search the Spotify catalog for a query
+ * Parameters:
+ * accessToken (string): Spotify Access Token
+ * query (string): Track to look up
+ */
 app.post('/searchTracks', function(req, res) {
     var query = req.body.query;
     var accessToken = req.body.accessToken;
@@ -435,6 +412,13 @@ app.post('/searchTracks', function(req, res) {
     });
 });
 
+/*
+ * Given an accessToken, look up the user's spotify username. 
+ * Then, look up the 5 most recent numbers the user shared a playlist
+ * with.
+ * Parameters:
+ * accessToken (string): Spotify Access Token
+ */
 app.post('/getRecentNumbers', function(req, res) {
     
     // first get some profile info
