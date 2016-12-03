@@ -198,7 +198,41 @@ $('.modal-blocker').click(function(){
 
 // Used only for creating a collaborative playlist
 $('.collab').click(function(){
-   $('.modal-component#collaborative').removeClass("hide").removeClass("fadeOut").addClass("fadeIn");  
+    
+   $('.modal-component#collaborative').removeClass("hide").removeClass("fadeOut").addClass("fadeIn"); 
+   $.ajax({
+        type: "POST",
+        url: "/getRecentNumbers",
+        dataType: 'json',
+        contentType: "application/json",
+        data: JSON.stringify({ 
+            accessToken: $('#accessToken').text()
+        })
+    }).done(function(data) {
+         console.log(data);
+         if (data.success) {
+             for (var n in data.numbers) {
+                 $('#recentNumbers').append('<li>' + data.numbers[n] + '</li>')
+             }
+             $('#recentNumbers li').on('click', function() {
+                var currentNumbers = $('#collab-share').val();
+                var newNumber = $(this).html();
+                console.log(currentNumbers);
+                
+                // don't append number if it has already been appended
+                if (currentNumbers.indexOf(newNumber) == -1) {
+                    if (currentNumbers.length > 0) {
+                        currentNumbers += ', ' + newNumber
+                    } else {
+                        currentNumbers += newNumber
+                    }
+                }
+                
+                $('#collab-share').val(currentNumbers);
+             });
+         }
+    });
+    
 });
 
 // Click an Option, open a Modal
@@ -214,7 +248,7 @@ function closeModal() {
     $('.modal-component').removeClass("fadeIn").addClass("fadeOut");
     setTimeout(function(){
         $('#collab-name, #collab-share').val('');
-        $('#tracks').html('');
+        $('#tracks, #recentNumbers').html('');
         $('.add-to-spotify-collaborative').html('CREATE AND SEND')
     }, 250);
 }

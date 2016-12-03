@@ -19,6 +19,7 @@ var url = 'mongodb://localhost:27017/cs411';
 var client_id;
 var client_secret;
 var tw;
+var lookupTW;
 var redirect_uri = 'http://localhost:8888/callback';
 
 /**
@@ -31,6 +32,7 @@ jsonfile.readFile(auth, function(err, obj) {
    
    // setup twilio
    tw = twilio("AC8e40f70c424e498c57399d92a5bd6af6", obj.twilio);
+   lookupTW = new twilio.LookupsClient("AC8e40f70c424e498c57399d92a5bd6af6", obj.twilio);
 });
 
 
@@ -433,6 +435,59 @@ app.post('/searchTracks', function(req, res) {
     });
 });
 
+app.post('/getRecentNumbers', function(req, res) {
+    
+    // first get some profile info
+    var accessToken = req.body.accessToken;
+    
+    var getProfile = {
+        url: 'https://api.spotify.com/v1/me',
+        headers: { 'Authorization': 'Bearer ' + accessToken },
+        json: true
+    };
+        
+    request.get(getProfile, function(error, response, body) {  
+        // get spotify userid 
+        var userID = body.id;
+                
+        // Next, connect to mongo to see if user has an existing
+        // playlist. If so, we just want to update the track
+        // listing not create a new one
+        MongoClient.connect(url, function (error, db) {
+            if (error) {
+                
+            } else {
+                var collection = db.collection('userNumbers');
+                var cursor = collection.find({ userID: userID }).sort({_id: -1 });
+                
+                cursor.limit(5);
+                
+                // find the users's data
+                cursor.toArray(function(error, result) {
+                    if (error) {
+                        res.setHeader('Content-Type', 'application/json');
+                        res.send(JSON.stringify({ success: false, message: error}));
+                        res.end(); 
+                    } else {
+                        var numbers = [];
+                        for (var n in result) {
+                            var singleNumber = result[n].number;
+                            numbers.push(singleNumber);
+                        }
+
+                        res.setHeader('Content-Type', 'application/json');
+                        res.send(JSON.stringify({ success: true, numbers: numbers}));
+                        res.end();
+                    }
+                });
+            }
+        });
+                                    
+    }); 
+
+});
+
+
 function createPlaylist(userID, accessToken, title, collaborative, trackListings = [], res, numbers = []) {
         
     // create the playlist first
@@ -448,9 +503,7 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
     };  
         
     request.post(toCreate, function(error, response, body) { 
-        
-        console.log(body);
-                
+                        
         // get the ID of the newly created playlist
         var playlistID = body.id; 
         var playlistBody = body;
@@ -489,9 +542,37 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
                                 numPhones--;
                                 
                                 if (numPhones == 0) {
-                                    res.setHeader('Content-Type', 'application/json');
-                                    res.send(JSON.stringify({ success: true, playlistID: playlistID}));
-                                    res.end();
+                                    
+                                    // get formatted number for easy access later
+                                    lookupTW.phoneNumbers(numbers[n]).get({
+                                       type:'carrier'
+                                    }, function(err, data) {
+                                        var number = data.nationalFormat;
+                                        
+                                        MongoClient.connect(url, function (error, db) {
+                                            var collection = db.collection('userNumbers');
+                                            
+                                            // delete any old data if it exists
+                                            collection.deleteOne( { userID: userID, number: number });
+                                            
+                                            // now we need to insert a row into the database
+                                            // so we can update the playlist accordingly in the future
+                                            collection.insert( { userID: userID, number: number } , function(error, result) {
+                                                
+                                                //Close connection
+                                                db.close();
+                                                if (error) {
+                                                    res.setHeader('Content-Type', 'application/json');
+                                                    res.send(JSON.stringify({ success: false, message: error}));
+                                                    res.end();
+                                                } else {
+                                                    res.setHeader('Content-Type', 'application/json');
+                                                    res.send(JSON.stringify({ success: true, playlistID: playlistID}));
+                                                    res.end();
+                                                }
+                                            });
+                                        });
+                                    });   
                                 }
                             });
                         }
@@ -506,7 +587,7 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
                             // now we need to insert a row into the database
                             // so we can update the playlist accordingly in the future
                             collection.insert( { userID: userID, playlistTitle: title, playlistID: playlistID} , function(error, result) {
-                                console.log(error,result);
+
                                 //Close connection
                                 db.close();
                                 if (error) {

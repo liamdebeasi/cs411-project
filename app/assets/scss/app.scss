@@ -245,6 +245,12 @@ body {
                         margin: 18px 8px;
                         text-transform: capitalize;
                     }
+                    h2 {
+                       color: $whiteSubText !important;
+                       font-size: 20px;
+                       margin: 18px 8px 6px 8px;
+                       text-transform: capitalize; 
+                    }
                     h4 {
                         color: $whiteSubText;
                         font-size: 14px;
@@ -291,9 +297,22 @@ body {
                             }
                         }
                     }
-                    &#tracks {
+                    &#tracks, &#recentNumbers {
                         padding: 0px 9px;
                         margin-left: -2px;
+                    }
+                    
+                    &#recentNumbers {
+                        li {
+                            cursor: pointer;
+                            height: 44px;
+                            line-height: 44px;
+                            font-size: 16px;
+                            color: white;
+                            &:hover {
+                                opacity: 0.8;
+                            }
+                        }
                     }
                     li {
                         padding-left: 24px;
