@@ -26,13 +26,15 @@
                     	<span>
                         	<div class="avatar" style="background-image: url(<%= profile.images[0].url %>);"></div>
                         	<p><%= profile.display_name || profile.id %></p>
+                        	<p id="uid" class="hide"><%= profile.id %></p> 
+                            <p id="accessToken" class="hide"><%= token %></p>
                     	</span>                    	
                 	</header>
             	</div>
         	</div>
         	
         	<% Object.keys(playlists).forEach(function(playlist) { %>
-            	<div class="modal-component hide" id="<%- playlist %>" >
+            	<div class="modal-component hide" id="modal-<%- playlist %>" >
                     <div class="modal-blocker"></div>
                     <div class="modal-container">
                         <div class="row header">
@@ -40,12 +42,12 @@
                                 <h1><%- playlist %></h1>
                             </div>
                             <div class="col-xs-8">
-                                <a href="#" class="button trans">ADD TO SPOTIFY</a>
+                                <a href="#" class="button trans add-to-spotify" id="<%- playlist %>">ADD TO SPOTIFY</a>
                             </div>
                         </div>
                         <ul>
                             <% playlists[playlist].forEach(function(song) { %>
-                                <li class="odd">
+                                <li class="odd" data-uri="<%- song.uri %>">
                                     <div class="album-art" style="background-image: url(<%- song.albumArt %>);"></div>
                                     <h3><%- song.name %></h3>
                                     <p><%- song.artist %> &bull; <%- song.album %></p>

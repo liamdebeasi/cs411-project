@@ -9,6 +9,11 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var jsonfile = require('jsonfile');
+var mongo = require('mongodb');
+
+// setup mongo client
+var MongoClient = mongo.MongoClient;
+var url = 'mongodb://localhost:27017/cs411';
 
 var client_id;
 var client_secret;
@@ -62,7 +67,7 @@ app.get('/login', function(req, res) {
     res.cookie(stateKey, state);
 
     // your application requests authorization
-    var scope = 'user-read-private user-read-email user-top-read';
+    var scope = 'user-read-private user-read-email user-top-read playlist-modify-public playlist-modify-private';
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -101,16 +106,12 @@ app.get('/dashboard', function(req, res) {
     
     if (!accessToken) {
         res.redirect('/');
-    } else {
-        
-        
+    } else {        
         var getTopArtistsOptions = {
             url: 'https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=5',
             headers: { 'Authorization': 'Bearer ' + accessToken },
             json: true
-        };
-        
-        
+        };        
         // Get user's top artists to act as seeds for recommendations
         request.get(getTopArtistsOptions, function(err, artistResponse, body) {
             
@@ -126,7 +127,7 @@ app.get('/dashboard', function(req, res) {
             //once done, we can get the recommendations
             var playlists = {
                 "gym": {
-                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.5&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.6&max_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
@@ -141,7 +142,7 @@ app.get('/dashboard', function(req, res) {
                     json: true
                 },
                 "party": {
-                    url: 'https://api.spotify.com/v1/recommendations?target_energy=1.0&target_danceability=1.0&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?target_energy=1.0&max_instrumentalness=0.0&target_danceability=1.0&market=US&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
@@ -171,12 +172,13 @@ app.get('/dashboard', function(req, res) {
                     for (var song in body.tracks) {
                         recommendations[p].push({
                             id: body.tracks[song].id,
+                            uri: body.tracks[song].uri,
                             name: body.tracks[song].name,
                             album: body.tracks[song].album.name,
                             artist: body.tracks[song].artists[0].name,
                             albumArt: body.tracks[song].album.images[0].url,
                             previewUrl: body.tracks[song].preview_url
-                        });
+                        });                        
                     } 
                     
                     // only render index.html
@@ -194,9 +196,11 @@ app.get('/dashboard', function(req, res) {
                             json: true
                         };
                         
+                        console.log(recommendations['gym']);
+                        
                         request.get(options, function(error, response, body) {   
                                                   
-                            res.render('index.html', { profile: body, playlists: recommendations } );                       
+                            res.render('index.html', { profile: body, playlists: recommendations, token: accessToken } );                       
                         }); 
                     }                   
                 });    
@@ -299,6 +303,177 @@ app.get('/callback', function(req, res) {
     });
   }
 });
+
+app.post('/createPlaylist', function(req, res) {
+    
+    // first get some profile info
+    var accessToken = req.body.accessToken;
+    var title = req.body.title;
+    var getProfile = {
+        url: 'https://api.spotify.com/v1/me',
+        headers: { 'Authorization': 'Bearer ' + accessToken },
+        json: true
+    };
+    
+    var collaborative = req.body.collaborative;
+    var trackListings = req.body.trackListings;
+        
+    request.get(getProfile, function(error, response, body) {  
+        
+        // get spotify userid 
+        var userID = body.id;
+        
+        console.log(body);  
+        
+        // Next, connect to mongo to see if user has an existing
+        // playlist. If so, we just want to update the track
+        // listing not create a new one
+        MongoClient.connect(url, function (error, db) {
+            if (error) {
+                
+            } else {
+                var collection = db.collection('userPlaylists');
+                var cursor = collection.find({ userID: userID, playlistTitle: title });
+                
+                cursor.limit(1);
+                
+                // find the users's data
+                cursor.toArray(function(error, result) {
+                    if (error) {
+                        res.setHeader('Content-Type', 'application/json');
+                        res.send(JSON.stringify({ success: false, message: error}));
+                        res.end(); 
+                    } else {
+                        
+                        // if the user already has a playlist, just update the tracks
+                        // as opposed to creating a new playlist
+                        console.log("result:",result);
+                        
+                        if (result.length > 0) {
+                            var playlistID = result[0].playlistID;
+                            var updateTracks = {        
+                                url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks',
+                                headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
+                                json: true,
+                                body: {
+                                    uris: trackListings
+                                }
+                            }; 
+                            
+                            console.log('update tracks');
+                                                        
+                            request.put(updateTracks, function(error, response, body) {
+                                                                
+                                // The user may have deleted the playlist from their account :/
+                                // if so, just add it again
+                                if (error || response.statusCode != 201) {
+                                    createPlaylist(userID, accessToken, title, collaborative, trackListings, res);
+                                } else {
+                                    
+                                    db.close();
+                                    console.log('updated');
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.send(JSON.stringify({ success: true, playlistID: playlistID}));
+                                    res.end();
+                                    
+                                }
+                            });
+                            
+                        // otherwise, user has no existing playlist
+                        // so go ahead and create a new one
+                        } else {   
+                            
+                            createPlaylist(userID, accessToken, title, collaborative, trackListings, res);
+                        }
+                    }
+                });
+            }
+        });
+                                    
+    }); 
+
+    
+    // get relevant data;  
+/*
+    */
+});
+
+function createPlaylist(userID, accessToken, title, collaborative, trackListings, res) {
+    
+    console.log('inplaylist',userID);
+    
+    // create the playlist first
+    var toCreate = {        
+        url: 'https://api.spotify.com/v1/users/' + userID + '/playlists',
+        headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
+        json: true,
+        body: {
+            name: title,
+            public: true,
+            collaborative: collaborative
+        }
+    };  
+        
+    request.post(toCreate, function(error, response, body) { 
+        
+
+        
+        // get the ID of the newly created playlist
+        var playlistID = body.id; 
+        
+        // next add tracks to the playlist
+        var addTracks = {        
+            url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks',
+            headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
+            json: true,
+            body: {
+                uris: trackListings
+            }
+        };
+        if (error) {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({ success: false, message: error}));
+            res.end();
+            
+        } else {
+                console.log('created');
+            request.post(addTracks, function(error, response, body) {
+                if (error) {
+                    res.setHeader('Content-Type', 'application/json');
+                    res.send(JSON.stringify({ success: false, message: error}));
+                    res.end();
+                } else {
+                    console.log('tracks added');
+                    MongoClient.connect(url, function (error, db) {
+                        var collection = db.collection('userPlaylists');
+                        
+                        // delete any old data if it exists
+                        collection.deleteOne( { userID: userID, playlistTitle: title });
+                        
+                        // now we need to insert a row into the database
+                        // so we can update the playlist accordingly in the future
+                        collection.insert( { userID: userID, playlistTitle: title, playlistID: playlistID} , function(error, result) {
+                            console.log(error,result);
+                            //Close connection
+                            db.close();
+                            if (error) {
+                                res.setHeader('Content-Type', 'application/json');
+                                res.send(JSON.stringify({ success: false, message: error}));
+                                res.end();
+                            } else {
+                                res.setHeader('Content-Type', 'application/json');
+                                res.send(JSON.stringify({ success: true, playlistID: playlistID}));
+                                res.end();
+                            }
+                        });
+                    });
+                }
+            });
+        }
+                                                                
+    }); 
+}
+
 /*
 
 app.get('/refresh_token', function(req, res) {

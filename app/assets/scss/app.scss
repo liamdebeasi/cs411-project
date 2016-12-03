@@ -19,7 +19,7 @@ body {
             color: #fff;
             font-weight: 600;
             margin: 18px 0px 18px 18px;
-            &:hover, &:active {
+            &:hover, &:active, &:focus {
                 color: #fff;
                 text-decoration: none;
                 opacity: 0.9;
