@@ -96,6 +96,26 @@ body {
                 width: 75%;
                 max-width: 1280px;
                 transform: translateY(-50%);
+                &.login {
+                    .hero {
+                        border-radius: 10px;
+                        width: 100%;
+                        height: 60vh;
+                        background-image: url('../img/ss.png');
+                        background-size: contain;
+                        background-position: center center;
+                        background-repeat: no-repeat;
+                        margin: 0 auto;
+                    }  
+                    h1 {
+                        color: white !important;
+                        font-size: 30px;
+                        margin: 18px 8px;
+                        text-transform: capitalize;
+                        text-align: center;
+                        font-style: italic;
+                    } 
+                }
                 section {
                     cursor: pointer;
                     
@@ -171,6 +191,11 @@ body {
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 100;
+            &#collaborative {
+                .modal-container {
+                    width: 500px !important;
+                } 
+            }
             .modal-blocker {
                 position: fixed;
                 left: 0;
@@ -194,6 +219,12 @@ body {
                 padding-top: 4px;
                 .row {
                     margin: 0px !important;
+                    .col-xs-12 {
+                        #collaborative {
+                            margin-right: 10px !important;
+                            margin-bottom: 22px !important;
+                        }
+                    }
                     &.header {
 /*
                         position: fixed;
@@ -204,32 +235,78 @@ body {
                         right: 0;
 */
                         background-color: $gray;
-                        h1 {
-                            color: white !important;
-                            font-size: 30px;
-                            margin: 0px; 
-                            margin: 18px 8px;
-                            text-transform: capitalize;
-                        }
                         a {
                             margin-right: 8px;
                         }
+                    }
+                    h1 {
+                        color: white !important;
+                        font-size: 30px;
+                        margin: 18px 8px;
+                        text-transform: capitalize;
+                    }
+                    h4 {
+                        color: $whiteSubText;
+                        font-size: 14px;
+                        margin: -14px 8px 18px 8px;
+                    }
+                    input, textarea {
+                        width: calc(100% - 18px);
+                        -webkit-appearance: none;
+                        margin: 0px 8px;
+                        border: none;
+                        font-size: 16px;
+                        padding: 10px;
+                    }
+                    
+                    input[type=text] {
+                        height: 44px;
+                    }
+                    textarea {
+                        resize: none;
+                        height: 100px;
                     }
                 }
                 ul {
                     -webkit-padding-start: 0px;
                     list-style-type: none;
                     font-weight: 300;
+                    &#collab-tracks {
+                        position: fixed;
+                        z-index: 100;
+                        height: 200px;
+                        border-radius: 0px 0px 6px 6px;
+                        overflow: scroll;
+                        -webkit-overflow-scrolling: touch;
+                        background-color: $gray;
+                        left: -1px;
+                        right: 0;
+                        margin: 0 auto;
+                        width: calc(100% - 47px);
+                        border: 1px solid #555;
+                        li {
+                            cursor: pointer;
+                            &:hover {
+                                opacity: 0.8;
+                            }
+                        }
+                    }
+                    &#tracks {
+                        padding: 0px 9px;
+                        margin-left: -2px;
+                    }
                     li {
                         padding-left: 24px;
                         height: 66px;
+                        &.even {
+                            background-color: transparent !important;
+                        }
                         &:nth-child(even) {
                             background-color: transparent;
                         }
-                        &:nth-child(odd) {
+                        &:nth-child(odd),&.odd {
                             background-color: $darkGray;
                         }
-                        
                         .album-art {
                             width: 50px;
                             height: 50px;

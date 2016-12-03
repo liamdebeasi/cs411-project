@@ -22,7 +22,7 @@
                 	<header>
                     	<h1>MySpotifyApp</h1>
                     	<a href="/logout" class="button trans">LOG OUT</a>
-                    	<a href="#" class="button trans">+ COLLABORATIVE PLAYLIST</a>
+                    	<a href="#" class="button trans collab">+ COLLABORATIVE PLAYLIST</a>
                     	<span>
                         	<div class="avatar" style="background-image: url(<%= profile.images[0].url %>);"></div>
                         	<p><%= profile.display_name || profile.id %></p>
@@ -31,6 +31,42 @@
                     	</span>                    	
                 	</header>
             	</div>
+        	</div>
+        	
+        	<div class="modal-component hide" id="collaborative">
+            	<div class="modal-blocker"></div>
+                <div class="modal-container">
+                    <div class="row header">
+                        <div class="col-xs-12">
+                            <h1>Playlist Name</h1>
+                            <input type="text" id="collab-name" name="name" placeholder="Collaborative Playlist">
+                        </div>
+                    </div><br>
+                    
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h1>Add Some Songs</h1>
+                            <h4>Use the search box below to select songs to add</h4>
+                            <input type="text" id="collab-search" name="name" placeholder="ex: Vegas Lights">
+                            <ul class="hide" id="collab-tracks"></ul>
+                            <ul id="tracks"></ul>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h1>Share</h1>
+                            <h4>Enter a list of phone numbers, separated by commas</h4>
+                            <textarea name="share" id="collab-share" placeholder="Enter phone numbers"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <a href="#" class="button trans add-to-spotify-collaborative" id="collaborative">CREATE AND SEND</a>
+                        </div>
+                    </div>
+                </div>
         	</div>
         	
         	<% Object.keys(playlists).forEach(function(playlist) { %>
@@ -47,7 +83,7 @@
                         </div>
                         <ul>
                             <% playlists[playlist].forEach(function(song) { %>
-                                <li class="odd" data-uri="<%- song.uri %>">
+                                <li data-uri="<%- song.uri %>">
                                     <div class="album-art" style="background-image: url(<%- song.albumArt %>);"></div>
                                     <h3><%- song.name %></h3>
                                     <p><%- song.artist %> &bull; <%- song.album %></p>

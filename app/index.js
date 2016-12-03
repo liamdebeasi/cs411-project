@@ -10,6 +10,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var jsonfile = require('jsonfile');
 var mongo = require('mongodb');
+var twilio = require('twilio');
 
 // setup mongo client
 var MongoClient = mongo.MongoClient;
@@ -17,6 +18,7 @@ var url = 'mongodb://localhost:27017/cs411';
 
 var client_id;
 var client_secret;
+var tw;
 var redirect_uri = 'http://localhost:8888/callback';
 
 /**
@@ -26,7 +28,12 @@ var auth = 'auth.json';
 jsonfile.readFile(auth, function(err, obj) {
    client_id = obj.client;
    client_secret = obj.secret; 
+   
+   // setup twilio
+   tw = twilio("AC8e40f70c424e498c57399d92a5bd6af6", obj.twilio);
 });
+
+
 
 /**
  * Generates a random string containing numbers and letters
@@ -195,9 +202,7 @@ app.get('/dashboard', function(req, res) {
                             headers: { 'Authorization': 'Bearer ' + accessToken },
                             json: true
                         };
-                        
-                        console.log(recommendations['gym']);
-                        
+                                                
                         request.get(options, function(error, response, body) {   
                                                   
                             res.render('index.html', { profile: body, playlists: recommendations, token: accessToken } );                       
@@ -317,14 +322,13 @@ app.post('/createPlaylist', function(req, res) {
     
     var collaborative = req.body.collaborative;
     var trackListings = req.body.trackListings;
+    var numbers = req.body.numbers || [];
         
     request.get(getProfile, function(error, response, body) {  
         
         // get spotify userid 
         var userID = body.id;
-        
-        console.log(body);  
-        
+                
         // Next, connect to mongo to see if user has an existing
         // playlist. If so, we just want to update the track
         // listing not create a new one
@@ -347,7 +351,6 @@ app.post('/createPlaylist', function(req, res) {
                         
                         // if the user already has a playlist, just update the tracks
                         // as opposed to creating a new playlist
-                        console.log("result:",result);
                         
                         if (result.length > 0) {
                             var playlistID = result[0].playlistID;
@@ -359,9 +362,7 @@ app.post('/createPlaylist', function(req, res) {
                                     uris: trackListings
                                 }
                             }; 
-                            
-                            console.log('update tracks');
-                                                        
+                                                                                    
                             request.put(updateTracks, function(error, response, body) {
                                                                 
                                 // The user may have deleted the playlist from their account :/
@@ -383,7 +384,7 @@ app.post('/createPlaylist', function(req, res) {
                         // so go ahead and create a new one
                         } else {   
                             
-                            createPlaylist(userID, accessToken, title, collaborative, trackListings, res);
+                            createPlaylist(userID, accessToken, title, collaborative, trackListings, res, numbers);
                         }
                     }
                 });
@@ -398,10 +399,42 @@ app.post('/createPlaylist', function(req, res) {
     */
 });
 
-function createPlaylist(userID, accessToken, title, collaborative, trackListings, res) {
+app.post('/searchTracks', function(req, res) {
+    var query = req.body.query;
+    var accessToken = req.body.accessToken;
+    var getTracks = {
+        url: 'https://api.spotify.com/v1/search?q=' + encodeURIComponent(query) + '&limit=10&type=track',
+        headers: { 'Authorization': 'Bearer ' + accessToken },
+        json: true
+    }; 
     
-    console.log('inplaylist',userID);
-    
+    request.get(getTracks, function(error, response, body) { 
+        
+        if (error) {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({ success: false, message: error}));
+            res.end();
+        } else {
+            var tracks = [];
+            for (var i in body.tracks.items) {
+                var track = body.tracks.items[i];
+                tracks.push({
+                    title: track.name,
+                    artist: track.artists[0].name,
+                    albumName: track.album.name,
+                    albumArt: track.album.images[1].url,
+                    uri: track.uri
+                });
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({ success: true, tracks: tracks}));
+            res.end();
+        }
+    });
+});
+
+function createPlaylist(userID, accessToken, title, collaborative, trackListings = [], res, numbers = []) {
+        
     // create the playlist first
     var toCreate = {        
         url: 'https://api.spotify.com/v1/users/' + userID + '/playlists',
@@ -409,18 +442,19 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
         json: true,
         body: {
             name: title,
-            public: true,
+            public: (collaborative) ? false : true,
             collaborative: collaborative
         }
     };  
         
     request.post(toCreate, function(error, response, body) { 
         
-
-        
+        console.log(body);
+                
         // get the ID of the newly created playlist
         var playlistID = body.id; 
-        
+        var playlistBody = body;
+            
         // next add tracks to the playlist
         var addTracks = {        
             url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks',
@@ -436,41 +470,60 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
             res.end();
             
         } else {
-                console.log('created');
             request.post(addTracks, function(error, response, body) {
                 if (error) {
                     res.setHeader('Content-Type', 'application/json');
                     res.send(JSON.stringify({ success: false, message: error}));
                     res.end();
                 } else {
-                    console.log('tracks added');
-                    MongoClient.connect(url, function (error, db) {
-                        var collection = db.collection('userPlaylists');
-                        
-                        // delete any old data if it exists
-                        collection.deleteOne( { userID: userID, playlistTitle: title });
-                        
-                        // now we need to insert a row into the database
-                        // so we can update the playlist accordingly in the future
-                        collection.insert( { userID: userID, playlistTitle: title, playlistID: playlistID} , function(error, result) {
-                            console.log(error,result);
-                            //Close connection
-                            db.close();
-                            if (error) {
-                                res.setHeader('Content-Type', 'application/json');
-                                res.send(JSON.stringify({ success: false, message: error}));
-                                res.end();
-                            } else {
-                                res.setHeader('Content-Type', 'application/json');
-                                res.send(JSON.stringify({ success: true, playlistID: playlistID}));
-                                res.end();
-                            }
+                    if (collaborative) {
+                        // share with friends
+                        var numPhones = numbers.length;
+                        var externalURL = playlistBody.external_urls.spotify;
+                        for (var n in numbers) {
+                            tw.messages.create({
+                                body: "Hi there, you have been invited to collaborate on the " + title + " playlist on Spotify. Tap the following link to get started: " + externalURL,
+                                to: numbers[n],
+                                from: "7742785522"
+                            }, function(err, data) {
+                                numPhones--;
+                                
+                                if (numPhones == 0) {
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.send(JSON.stringify({ success: true, playlistID: playlistID}));
+                                    res.end();
+                                }
+                            });
+                        }
+
+                    } else {
+                        MongoClient.connect(url, function (error, db) {
+                            var collection = db.collection('userPlaylists');
+                            
+                            // delete any old data if it exists
+                            collection.deleteOne( { userID: userID, playlistTitle: title });
+                            
+                            // now we need to insert a row into the database
+                            // so we can update the playlist accordingly in the future
+                            collection.insert( { userID: userID, playlistTitle: title, playlistID: playlistID} , function(error, result) {
+                                console.log(error,result);
+                                //Close connection
+                                db.close();
+                                if (error) {
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.send(JSON.stringify({ success: false, message: error}));
+                                    res.end();
+                                } else {
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.send(JSON.stringify({ success: true, playlistID: playlistID}));
+                                    res.end();
+                                }
+                            });
                         });
-                    });
+                    }
                 }
             });
-        }
-                                                                
+        }                                                   
     }); 
 }
 
