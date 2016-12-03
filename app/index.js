@@ -134,22 +134,22 @@ app.get('/dashboard', function(req, res) {
             //once done, we can get the recommendations
             var playlists = {
                 "gym": {
-                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.6&max_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.6&target_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "sleep": {
-                    url: 'https://api.spotify.com/v1/recommendations?max_energy=0.2&min_acousticness=0.2&min_instrumentalness=0.2&max_danceability=0.2&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?max_energy=0.4&max_energy=0.5&target_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "lounge": {
-                    url: 'https://api.spotify.com/v1/recommendations?max_energy=0.5&min_acousticness=0.1&min_instrumentalness=0.1&max_danceability=0.6&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?max_energy=0.5&target_instrumentalness=0.0&target_acousticness=0.1&market=US&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "party": {
-                    url: 'https://api.spotify.com/v1/recommendations?target_energy=1.0&max_instrumentalness=0.0&target_danceability=1.0&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?target_energy=1.0&target_instrumentalness=0.0&target_danceability=1.0&market=US&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
@@ -159,7 +159,7 @@ app.get('/dashboard', function(req, res) {
                     json: true
                 },
                 "random": {
-                    url: 'https://api.spotify.com/v1/recommendations?market=US&target_energy=' + Math.random() + '&target_danceability=' + Math.random() + '&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?market=US&target_instrumentalness=' + Math.random() + '&target_energy=' + Math.random() + '&target_danceability=' + Math.random() + '&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 }
@@ -501,6 +501,8 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
                 uris: trackListings
             }
         };
+        
+        console.log('playlist',playlistID,'created');
         if (error) {
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify({ success: false, message: error}));
@@ -508,6 +510,7 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
             
         } else {
             request.post(addTracks, function(error, response, body) {
+                console.log('added tracks');
                 if (error) {
                     res.setHeader('Content-Type', 'application/json');
                     res.send(JSON.stringify({ success: false, message: error}));
@@ -562,6 +565,7 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
                         }
 
                     } else {
+                        console.log('not collab');
                         MongoClient.connect(url, function (error, db) {
                             var collection = db.collection('userPlaylists');
                             
@@ -571,7 +575,7 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
                             // now we need to insert a row into the database
                             // so we can update the playlist accordingly in the future
                             collection.insert( { userID: userID, playlistTitle: title, playlistID: playlistID} , function(error, result) {
-
+                            
                                 //Close connection
                                 db.close();
                                 if (error) {

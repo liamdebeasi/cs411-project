@@ -73,7 +73,7 @@
         	</div>
         	
         	<% Object.keys(playlists).forEach(function(playlist) { %>
-            	<div class="modal-component hide" id="modal-<%- playlist %>" >
+            	<div class="modal-component hide" id="modal-<%- playlist %>">
                     <div class="modal-blocker"></div>
                     <div class="modal-container">
                         <div class="row header">
@@ -86,7 +86,7 @@
                         </div>
                         <ul>
                             <% playlists[playlist].forEach(function(song) { %>
-                                <li data-uri="<%- song.uri %>">
+                                <li data-uri="<%- song.uri %>" data-preview="<%- song.previewUrl %>">
                                     <div class="album-art" style="background-image: url(<%- song.albumArt %>);"></div>
                                     <h3><%- song.name %></h3>
                                     <p><%- song.artist %> &bull; <%- song.album %></p>
@@ -154,7 +154,7 @@
             	</div>
             </div>
     	</div>
-<!--         <script src="js/exclude/visualizer.js"></script> -->
+        <script src="js/exclude/visualizer.js"></script>
 		<script src="js/min/app.min.js"></script>
 	</body>
 </html>
