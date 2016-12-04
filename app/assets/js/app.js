@@ -131,13 +131,8 @@ $('#collab-search').keyup(function(){
                      $('#collab-tracks').html('').removeClass("hide");
                     for (var t in data.tracks) {
                         var track = data.tracks[t];
-                        if (t % 2 == 0) {
-                            var type = "even";
-                        } else {
-                            var type = "odd";
-                        }
-                        
-                        $('#collab-tracks').append('<li class="'+type+'" data-uri="' + track.uri + '" data-track="' + track.title + '" data-artist="' + track.artist + '" data-album="' + track.albumName + '" data-image="' + track.albumArt + '">'
+
+                        $('#collab-tracks').append('<li data-uri="' + track.uri + '" data-track="' + track.title + '" data-artist="' + track.artist + '" data-album="' + track.albumName + '" data-image="' + track.albumArt + '">'
                         + '<div class="album-art " style="background-image: url(' + track.albumArt + ');"></div>'
                         + '<h3>' + track.title + '</h3>'
                         + '<p>' + track.artist + ' &bull; ' + track.albumName + '</p>'
@@ -214,8 +209,12 @@ $('.collab').click(function(){
     }).done(function(data) {
          console.log(data);
          if (data.success) {
+             if (data.numbers.length > 0) {
+                 $('#recentNumbers').removeClass("hide");
+             }
+             
              for (var n in data.numbers) {
-                 $('#recentNumbers').append('<li>' + data.numbers[n] + '</li>')
+                 $('#recentNumbers').append('<li class="odd">' + data.numbers[n] + '</li>')
              }
              $('#recentNumbers li').on('click', function() {
                 var currentNumbers = $('#collab-share').val();
@@ -231,7 +230,7 @@ $('.collab').click(function(){
                     }
                 }
                 
-                $('#collab-share').val(currentNumbers);
+                $('#collab-share').val(currentNumbers); 
              });
          }
     });
@@ -252,6 +251,7 @@ function closeModal() {
     setTimeout(function(){
         $('#collab-name, #collab-share').val('');
         $('#tracks, #recentNumbers').html('');
+        $('#recentNumbers').addClass("hide");
         $('.add-to-spotify-collaborative').html('CREATE AND SEND')
     }, 250);
 }

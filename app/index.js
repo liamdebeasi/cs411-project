@@ -23,6 +23,17 @@ var lookupTW;
 var redirect_uri = 'http://localhost:8888/callback';
 
 /**
+ * Shuffles array in place. ES6 version
+ * @param {Array} a items The array containing the items.
+ */
+function shuffle(a) {
+    for (let i = a.length; i; i--) {
+        let j = Math.floor(Math.random() * i);
+        [a[i - 1], a[j]] = [a[j], a[i - 1]];
+    }
+}
+
+/**
  * Get auth keys
  */
 var auth = 'auth.json';
@@ -33,6 +44,9 @@ jsonfile.readFile(auth, function(err, obj) {
    // setup twilio
    tw = twilio("AC8e40f70c424e498c57399d92a5bd6af6", obj.twilio);
    lookupTW = new twilio.LookupsClient("AC8e40f70c424e498c57399d92a5bd6af6", obj.twilio);
+   
+   // setup mongo creds
+   url  = 'mongodb://' +  obj.mongoUsername + ':' + obj.mongoPassword + '@ds119788.mlab.com:19788/heroku_lcwx7zd3';
 });
 
 /**
