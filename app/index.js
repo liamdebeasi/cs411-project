@@ -169,22 +169,22 @@ app.get('/dashboard', function(req, res) {
                     json: true
                 },
                 "lounge": {
-                    url: 'https://api.spotify.com/v1/recommendations?target_danceability=0.5&target_energy=0.3&target_valence=0.3&market=US&seed_artists=' + artistsStr + '&min_popularity=25&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?target_danceability=0.5&target_energy=0.3&target_valence=0.3&market=US&seed_artists=' + artistsStr + '&min_popularity=35&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "party": {
-                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.5&min_danceability=0.5&max_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&min_popularity=50&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.5&min_danceability=0.5&max_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&min_popularity=60&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "work": {
-                    url: 'https://api.spotify.com/v1/recommendations?market=US&max_energy=0.6&min_instrumentalness=0.5&min_valence=0.3&seed_artists=' + artistsStr + '&min_popularity=25&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?market=US&target_energy=0.6&target_instrumentalness=0.5&min_valence=0.4&seed_artists=' + artistsStr + '&min_popularity=40&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "random": {
-                    url: 'https://api.spotify.com/v1/recommendations?market=US&target_instrumentalness=0.0&target_energy=' + Math.random() + '&target_danceability=' + Math.random() + '&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?market=US&max_instrumentalness=0.0&target_energy=' + Math.random() + '&target_danceability=' + Math.random() + '&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 }
@@ -196,7 +196,7 @@ app.get('/dashboard', function(req, res) {
             // for each playlist, get some recommendations
             for (let p in playlists) {
                 request.get(playlists[p], function(error, response, body) { 
-                                        
+                                                            
                     recommendations[p] = [];
                                         
                     // process data into a format that will be displayed
@@ -213,16 +213,15 @@ app.get('/dashboard', function(req, res) {
                         });                        
                     } 
                     
+                    // shuffle in place
+                    shuffle(recommendations[p]);
+                    
                     // only render index.html
                     // once all playlists have been processed
                     // ideally we would use promises, but there
                     // is support for multiple browsers is kinda
                     // sketchy... lookin at u internet explorer
-                    numPlaylists--;
-                    // shuffle in place
-                    shuffle(recommendations[p]);
-                    
-                    if (numPlaylists == 0) {
+                    if (Object.keys(recommendations).length == 6) {
                         
                         var options = {
                             url: 'https://api.spotify.com/v1/me',
