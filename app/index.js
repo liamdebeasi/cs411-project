@@ -51,6 +51,17 @@ var generateRandomString = function(length) {
 };
 
 /**
+ * Shuffles array in place. ES6 version
+ * @param {Array} a items The array containing the items.
+ */
+function shuffle(a) {
+    for (let i = a.length; i; i--) {
+        let j = Math.floor(Math.random() * i);
+        [a[i - 1], a[j]] = [a[j], a[i - 1]];
+    }
+}
+
+/**
  * Setup Express server
  */
 var stateKey = 'spotify_auth_state';
@@ -134,32 +145,32 @@ app.get('/dashboard', function(req, res) {
             //once done, we can get the recommendations
             var playlists = {
                 "gym": {
-                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.6&target_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.5&max_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&min_popularity=25&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "sleep": {
-                    url: 'https://api.spotify.com/v1/recommendations?max_energy=0.4&max_energy=0.5&target_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?target_loudness=-30&max_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&min_popularity=25&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "lounge": {
-                    url: 'https://api.spotify.com/v1/recommendations?max_energy=0.5&target_instrumentalness=0.0&target_acousticness=0.1&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?target_danceability=0.5&target_energy=0.3&target_valence=0.3&market=US&seed_artists=' + artistsStr + '&min_popularity=25&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "party": {
-                    url: 'https://api.spotify.com/v1/recommendations?target_energy=1.0&target_instrumentalness=0.0&target_danceability=1.0&market=US&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?min_energy=0.5&min_danceability=0.5&max_instrumentalness=0.0&market=US&seed_artists=' + artistsStr + '&min_popularity=50&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "work": {
-                    url: 'https://api.spotify.com/v1/recommendations?market=US&max_energy=0.6&min_instrumentalness=0.7&max_danceability=0.6&min_acousticness=0.5&min_valence=0.2&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?market=US&max_energy=0.6&min_instrumentalness=0.5&min_valence=0.3&seed_artists=' + artistsStr + '&min_popularity=25&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 },
                 "random": {
-                    url: 'https://api.spotify.com/v1/recommendations?market=US&target_instrumentalness=' + Math.random() + '&target_energy=' + Math.random() + '&target_danceability=' + Math.random() + '&seed_artists=' + artistsStr + '&limit=10',
+                    url: 'https://api.spotify.com/v1/recommendations?market=US&target_instrumentalness=0.0&target_energy=' + Math.random() + '&target_danceability=' + Math.random() + '&seed_artists=' + artistsStr + '&limit=10',
                     headers: {'Authorization' : 'Bearer ' + accessToken, 'Accept' : 'application/json'},
                     json: true
                 }
@@ -194,6 +205,8 @@ app.get('/dashboard', function(req, res) {
                     // is support for multiple browsers is kinda
                     // sketchy... lookin at u internet explorer
                     numPlaylists--;
+                    // shuffle in place
+                    shuffle(recommendations[p]);
                     
                     if (numPlaylists == 0) {
                         
