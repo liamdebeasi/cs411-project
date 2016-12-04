@@ -310,7 +310,7 @@ app.get('/callback', function(req, res) {
  * with (if collaborative)
  */
 app.post('/createPlaylist', function(req, res) {
-    
+    console.log('ay');
     // first get some profile info
     var accessToken = req.body.accessToken;
     var title = req.body.title;
@@ -325,7 +325,7 @@ app.post('/createPlaylist', function(req, res) {
     var numbers = req.body.numbers || [];
         
     request.get(getProfile, function(error, response, body) {  
-        
+        console.log(error, body);
         // get spotify userid 
         var userID = body.id;
                 
@@ -334,7 +334,9 @@ app.post('/createPlaylist', function(req, res) {
         // listing not create a new one
         MongoClient.connect(url, function (error, db) {
             if (error) {
-                
+                 res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({ success: false, message: error}));
+                res.end(); 
             } else {
                 var collection = db.collection('userPlaylists');
                 var cursor = collection.find({ userID: userID, playlistTitle: title });

@@ -85,7 +85,10 @@ $('.add-to-spotify-collaborative').click(function(){
         uris.push($(this).data('uri'));
     });
     
+    
+    console.log(playlistTitle);
     if (playlistTitle) {
+        console.log('send ');
         $.ajax({
             type: "POST",
             url: "/createPlaylist",
@@ -210,7 +213,7 @@ $('.collab').click(function(){
          console.log(data);
          if (data.success) {
              if (data.numbers.length > 0) {
-                 $('#recentNumbers').removeClass("hide");
+                 $('#recentNumbers, #recentNumbersHeader').removeClass("hide");
              }
              
              for (var n in data.numbers) {
@@ -251,7 +254,7 @@ function closeModal() {
     setTimeout(function(){
         $('#collab-name, #collab-share').val('');
         $('#tracks, #recentNumbers').html('');
-        $('#recentNumbers').addClass("hide");
+        $('#recentNumbers, #recentNumbersHeader').addClass("hide");
         $('.add-to-spotify-collaborative').html('CREATE AND SEND')
     }, 250);
 }
