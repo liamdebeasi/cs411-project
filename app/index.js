@@ -25,6 +25,7 @@ var redirect_uri = 'http://localhost:8888/callback';
 /**
  * Shuffles array in place. ES6 version
  * @param {Array} a items The array containing the items.
+ * Source: http://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array-in-javascript
  */
 function shuffle(a) {
     for (let i = a.length; i; i--) {
@@ -36,14 +37,13 @@ function shuffle(a) {
 /**
  * Get auth keys
  */
-var auth = 'auth.json';
-jsonfile.readFile(auth, function(err, obj) {
+jsonfile.readFile('auth.json', function(err, obj) {
    client_id = obj.client;
    client_secret = obj.secret; 
    
    // setup twilio
-   tw = twilio("AC8e40f70c424e498c57399d92a5bd6af6", obj.twilio);
-   lookupTW = new twilio.LookupsClient("AC8e40f70c424e498c57399d92a5bd6af6", obj.twilio);
+   tw = twilio(obj.twilioID, obj.twilioToken);
+   lookupTW = new twilio.LookupsClient(obj.twilioID, obj.twilioToken);
    
    // setup mongo creds
    url  = 'mongodb://' +  obj.mongoUsername + ':' + obj.mongoPassword + '@ds119788.mlab.com:19788/heroku_lcwx7zd3';
@@ -63,17 +63,6 @@ var generateRandomString = function(length) {
     }
     return text;
 };
-
-/**
- * Shuffles array in place. ES6 version
- * @param {Array} a items The array containing the items.
- */
-function shuffle(a) {
-    for (let i = a.length; i; i--) {
-        let j = Math.floor(Math.random() * i);
-        [a[i - 1], a[j]] = [a[j], a[i - 1]];
-    }
-}
 
 /**
  * Setup Express server
@@ -106,7 +95,8 @@ app.get('/login', function(req, res) {
             client_id: client_id,
             scope: scope,
             redirect_uri: redirect_uri,
-            state: state
+            state: state,
+            show_dialog: true
         })
     );
 });
