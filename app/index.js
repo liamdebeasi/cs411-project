@@ -538,48 +538,50 @@ function createPlaylist(userID, accessToken, title, collaborative, trackListings
                         // share with friends
                         var numPhones = numbers.length;
                         var externalURL = playlistBody.external_urls.spotify;
-                        for (var n in numbers) {
-                            tw.messages.create({
-                                body: 'Hi there, you have been invited to collaborate on the "' + title + '" playlist on Spotify. Tap the following link to get started: ' + externalURL,
-                                to: numbers[n],
-                                from: "7742785522"
-                            }, function(err, data) {
-                                numPhones--;
-                                
-                                if (numPhones == 0) {
+                        if (numPhones > 0) {
+                            for (var n in numbers) {
+                                tw.messages.create({
+                                    body: 'Hi there, you have been invited to collaborate on the "' + title + '" playlist on Spotify. Tap the following link to get started: ' + externalURL,
+                                    to: numbers[n],
+                                    from: "7742785522"
+                                }, function(err, data) {
+                                    numPhones--;
                                     
-                                    // get formatted number for easy access later
-                                    lookupTW.phoneNumbers(numbers[n]).get({
-                                       type:'carrier'
-                                    }, function(err, data) {
-                                        var number = data.nationalFormat;
+                                    if (numPhones == 0) {
                                         
-                                        MongoClient.connect(url, function (error, db) {
-                                            var collection = db.collection('userNumbers');
+                                        // get formatted number for easy access later
+                                        lookupTW.phoneNumbers(numbers[n]).get({
+                                           type:'carrier'
+                                        }, function(err, data) {
+                                            var number = data.nationalFormat;
                                             
-                                            // delete any old data if it exists
-                                            collection.deleteOne( { userID: userID, number: number });
-                                            
-                                            // now we need to insert a row into the database
-                                            // so we can update the playlist accordingly in the future
-                                            collection.insert( { userID: userID, number: number } , function(error, result) {
+                                            MongoClient.connect(url, function (error, db) {
+                                                var collection = db.collection('userNumbers');
                                                 
-                                                //Close connection
-                                                db.close();
-                                                if (error) {
-                                                    res.setHeader('Content-Type', 'application/json');
-                                                    res.send(JSON.stringify({ success: false, message: error}));
-                                                    res.end();
-                                                } else {
-                                                    res.setHeader('Content-Type', 'application/json');
-                                                    res.send(JSON.stringify({ success: true, playlistID: playlistID}));
-                                                    res.end();
-                                                }
+                                                // delete any old data if it exists
+                                                collection.deleteOne( { userID: userID, number: number });
+                                                
+                                                // now we need to insert a row into the database
+                                                // so we can update the playlist accordingly in the future
+                                                collection.insert( { userID: userID, number: number } , function(error, result) {
+                                                    
+                                                    //Close connection
+                                                    db.close();
+                                                    if (error) {
+                                                        res.setHeader('Content-Type', 'application/json');
+                                                        res.send(JSON.stringify({ success: false, message: error}));
+                                                        res.end();
+                                                    } else {
+                                                        res.setHeader('Content-Type', 'application/json');
+                                                        res.send(JSON.stringify({ success: true, playlistID: playlistID}));
+                                                        res.end();
+                                                    }
+                                                });
                                             });
-                                        });
-                                    });   
-                                }
-                            });
+                                        });   
+                                    }
+                                });
+                            }
                         }
 
                     } else {
