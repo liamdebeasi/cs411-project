@@ -1,0 +1,23 @@
+Collection: userNumbers
+All fields are required
+
+	    {
+		"_id": {
+		    "$old": "12345" # Mongo-generated unique ID (string)
+		},
+		"userID": "myUsername", # Spotify User name for an account (string) *** Used as a key to lookup info by username ***
+		"number": "(508) 555-5555" # A phone number that the user has shared a collaborative playlist with (string)
+	    }
+
+
+Collection: userPlaylists
+All fields are required
+
+	    {
+		"_id": {
+		    "$old": "12345" # Mongo-generated unique ID (string)
+		},
+		"userID": "myUsername", # Spotify User name for an account (string) *** Used as a key to lookup info by username ***
+		"playlistTitle": "Gym", # The human-readable name of a playlist (string)
+		"playlistID": "67890" # The Spotify-generated unique ID for a playlist (string)
+	    }

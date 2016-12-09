@@ -1,0 +1,399 @@
+$whiteSubText: #AAAAAA;
+$black: #191414;
+$gray: rgba(51, 51, 46, 1);
+$darkGray: rgba(30, 30, 27, 1);
+$green: rgba(30, 215, 95, 1);
+
+body {
+    background-color: $black !important;
+    font-family: "Proxima Nova" !important;
+    canvas {
+        position: absolute;
+    }
+    a {
+        &.button {
+            float: right;
+            background-color: $green;
+            padding: 6px 24px;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: 600;
+            margin: 18px 0px 18px 18px;
+            &:hover, &:active, &:focus {
+                color: #fff;
+                text-decoration: none;
+                opacity: 0.9;
+            }
+        }
+    }
+    .gradient {
+        position: fixed;
+        margin: 0 auto;
+        left: 0;
+        right:0;
+        top:50%;
+        bottom:0;
+        width: 100%;
+        height: 100%;
+        transform: translateY(-50%);
+        opacity: 0.25;
+        /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#1ed75f+0,1ed75f+100&0.5+0,0+60 */
+        background: -moz-radial-gradient(center, ellipse cover,  rgba(30,215,95,0.5) 0%, rgba(30,215,95,0) 60%, rgba(30,215,95,0) 100%); /* FF3.6-15 */
+        background: -webkit-radial-gradient(center, ellipse cover,  rgba(30,215,95,0.5) 0%,rgba(30,215,95,0) 60%,rgba(30,215,95,0) 100%); /* Chrome10-25,Safari5.1-6 */
+        background: radial-gradient(ellipse at center,  rgba(30,215,95,0.5) 0%,rgba(30,215,95,0) 60%,rgba(30,215,95,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#801ed75f', endColorstr='#001ed75f',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+    }
+    .container-fluid {
+        width: 75%;
+        max-width: 1280px;
+        header {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            color: #fff;
+            height: 70px;
+            width: 73%;
+            max-width: 1280px;
+            margin: 0 auto;
+            h1 {
+                float: left;
+                font-size: 22px;
+                font-weight: 400;
+                margin: 0px 18px 0px 0px;
+                line-height: 70px;
+            }
+            span {
+                float: right;
+                font-size: 16px;
+                font-weight: 300;
+                line-height: 70px;
+                .avatar {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 60px;
+                    background-color: rgba(255,255,255,0.5);
+                    float: left;
+                    margin: 18px 8px;
+                    background-image: url('../img/img-small.jpg');
+                    background-size: cover;
+                    background-position: center center;
+                }
+                p {
+                    float: right;
+                    opacity: 0.54;
+                    font-weight: 400;
+                }
+            }
+        }
+        .row {
+            &.content {
+                position: fixed;
+                margin: 0 auto;
+                left: 0;
+                right: 0;
+                top: 50%;
+                width: 75%;
+                max-width: 1280px;
+                transform: translateY(-50%);
+                &.login {
+                    .hero {
+                        border-radius: 10px;
+                        width: 100%;
+                        height: 60vh;
+                        background-image: url('../img/ss.png');
+                        background-size: contain;
+                        background-position: center center;
+                        background-repeat: no-repeat;
+                        margin: 0 auto;
+                    }  
+                    h1 {
+                        color: white !important;
+                        font-size: 30px;
+                        margin: 18px 8px;
+                        text-transform: capitalize;
+                        text-align: center;
+                        font-style: italic;
+                    } 
+                }
+                section {
+                    cursor: pointer;
+                    
+                    height: 25vh;
+                    border-radius: 4px;
+                    
+                    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#595959+0,2d2d2d+100&0.75+0,0.5+100 */
+                    background: -moz-radial-gradient(top, ellipse cover,  rgba(89,89,89,0.75) 0%, rgba(45,45,45,0.5) 100%); /* FF3.6-15 */
+                    background: -webkit-radial-gradient(top, ellipse cover,  rgba(89,89,89,0.75) 0%,rgba(45,45,45,0.5) 100%); /* Chrome10-25,Safari5.1-6 */
+                    background: radial-gradient(ellipse at top,  rgba(89,89,89,0.75) 0%,rgba(45,45,45,0.5) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bf595959', endColorstr='#802d2d2d',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+                    -webkit-backdrop-filter: blur(10px);
+                    backdrop-filter: blur(10px);
+                    box-shadow: 0px 0px 10px rgba(0,0,0,0.35);
+                    text-align: center;
+                    
+                    .section-container {
+                        position: absolute;
+                        margin: 0 auto;
+                        left: 0;
+                        right: 0;
+                        top: 50%;
+                        bottom: 0;
+                        transform: translateY(-50%);
+                        h2 {
+                            color: rgba(255, 255, 255, 0.55);
+                            font-weight: 300;
+                            font-size: 22px;
+                        }
+                        .icon {
+                            width: 64px;
+                            height: 64px;
+                            margin: 0 auto;
+                            -webkit-filter: invert(100%);
+                            opacity: 0.55;
+                            background-size: contain;
+                            &#gym {
+                                background-image: url('../img/gym.svg');
+                            }
+                            &#lounge {
+                                background-image: url('../img/lounge.svg');
+                            }
+                            &#party {
+                                background-image: url('../img/party.svg');
+                            }
+                            &#sleep {
+                                background-image: url('../img/sleep.svg');
+                            }
+                            &#work {
+                                background-image: url('../img/work.svg');
+                            }
+                            &#random {
+                                background-image: url('../img/random.svg');
+                            }
+                        }
+                    }
+                    &:hover {
+                        transform: scale3d(1.1, 1.1, 1);
+                    }
+                }
+                .col-xs-6.col-md-4 {
+                    margin-bottom: 30px;
+                }
+            }
+        }
+        .modal-component {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            &#collaborative {
+                .modal-container {
+                    width: 500px !important;
+                } 
+            }
+            .modal-blocker {
+                position: fixed;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                margin: 0 auto;
+            }
+            .modal-container {
+                width: 400px;
+                max-height: 600px;
+                overflow: scroll;
+                -webkit-overflow-scrolling: touch;
+                background-color: $gray;
+                box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5);
+                border-radius: 4px;
+                position: relative;
+                margin: 0 auto;
+                top: 50%;
+                transform: translateY(-50%);
+                padding-top: 4px;
+                .row {
+                    margin: 0px !important;
+                    .col-xs-12 {
+                        #collaborative {
+                            margin-right: 10px !important;
+                            margin-bottom: 22px !important;
+                        }
+                    }
+                    &.header {
+/*
+                        position: fixed;
+                        width: 100%;
+                        height: 100px;
+                        left: 0;
+                        top: 0;
+                        right: 0;
+*/
+                        background-color: $gray;
+                        a {
+                            margin-right: 8px;
+                        }
+                    }
+                    h1 {
+                        color: white !important;
+                        font-size: 30px;
+                        margin: 18px 8px;
+                        text-transform: capitalize;
+                    }
+                    h2 {
+                       color: $whiteSubText !important;
+                       font-size: 20px;
+                       margin: 18px 8px 6px 8px;
+                       text-transform: capitalize; 
+                    }
+                    h4 {
+                        color: $whiteSubText;
+                        font-size: 14px;
+                        margin: -14px 8px 18px 8px;
+                    }
+                    input, textarea {
+                        width: calc(100% - 18px);
+                        -webkit-appearance: none;
+                        margin: 0px 8px;
+                        border: none;
+                        font-size: 16px;
+                        padding: 10px;
+                        background-color: $darkGray;
+                        outline: none;
+                        color: #a9a9a9;
+                    }
+                    
+                    input[type=text] {
+                        height: 44px;
+                    }
+                    textarea {
+                        resize: none;
+                        height: 100px;
+                    }
+                }
+                ul {
+                    -webkit-padding-start: 0px;
+                    list-style-type: none;
+                    font-weight: 300;
+                    &#collab-tracks {
+                        position: fixed;
+                        z-index: 100;
+                        height: 200px;
+                        border-radius: 0px 0px 6px 6px;
+                        overflow: scroll;
+                        -webkit-overflow-scrolling: touch;
+                        background-color: $gray;
+                        left: -1px;
+                        right: 0;
+                        margin: 0 auto;
+                        width: calc(100% - 47px);
+                        border: 1px solid #555;
+                        li {
+                            cursor: pointer;
+                            &:hover {
+                                opacity: 0.8;
+                            }
+                        }
+                    }
+                    &#tracks, &#recentNumbers {
+                        padding: 0px 10px;
+                        margin-left: -2px;
+                    }
+                    
+                    &#recentNumbers {
+                        li {
+                            cursor: pointer;
+                            height: 44px;
+                            line-height: 44px;
+                            font-size: 16px;
+                            color: white;
+                            &:hover {
+                                opacity: 0.8;
+                            }
+                        }
+                    }
+                    li {
+                        padding-left: 24px;
+                        height: 66px;
+                        &.even {
+                            background-color: transparent !important;
+                        }
+                        &:nth-child(even) {
+                            background-color: transparent;
+                        }
+                        &:nth-child(odd),&.odd {
+                            background-color: $darkGray;
+                        }
+                        .album-art {
+                            width: 50px;
+                            height: 50px;
+                            border-radius: 4px;
+                            float: left;
+                            background-image: url('../img/album.jpg');
+                            background-size: cover;
+                            background-position: center center;
+                            margin: 8px 10px 8px 0px;
+                        }
+                        h3 {
+                            color: white;
+                            font-size: 16px;
+                            padding-top: 15px;
+                            margin: 0px;
+                            font-weight: 300;
+                            overflow: hidden;
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            padding-right: 22px;
+                        }
+                        p {
+                           color: $whiteSubText;
+                           font-size: 14px;
+                           padding-top: 3px; 
+                           overflow: hidden;
+                           white-space: nowrap;
+                           text-overflow: ellipsis;
+                           padding-right: 22px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 1000px) {
+    body {
+        .container-fluid {
+            .row {
+                &.content {
+                    margin-top: 50px;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 640px) {
+    body {
+        .container-fluid {
+            width: 100%;
+            max-width: 100%;
+            header {
+                width: calc(100% - 30px);
+                max-width: calc(100% - 30px); 
+                padding-top: 15px;
+            }
+            .row {
+                &.content {
+                   width: calc(100% - 30px);
+                   max-width: calc(100% - 30px); 
+                }
+            }
+        }
+    }
+}

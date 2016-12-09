@@ -1,0 +1,76 @@
+.trans {
+    -webkit-transition: all .25s ease-in-out;
+    transition: all .25s ease-in-out;
+}
+
+.trans2 {
+    -webkit-transition: all .1s ease-in-out;
+    transition: all .1s ease-in-out;
+}
+
+.trans3 {
+    -webkit-transition: all .15s ease-in-out;
+    transition: all .15s ease-in-out;
+}
+
+@-webkit-keyframes fadeIn {
+    from {
+        display: none;
+        opacity: 0;
+    }
+    to {
+        display: block;
+        opacity: 1; } }
+
+@keyframes fadeIn {
+    from {
+        display: none;
+        opacity: 0;
+    }
+    to {
+        display: block;
+        opacity: 1; } }
+
+@-webkit-keyframes fadeOut {
+    from {
+        display: block;
+        opacity: 1;
+    }
+    to {
+        display: none;
+        opacity: 0;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        display: block;
+        opacity: 1;
+    }
+    to {
+        display: none;
+        opacity: 0;
+    }
+}
+
+.fadeIn {
+    -webkit-animation-duration: .25s;
+    animation-duration: .25s;
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    pointer-events: all;
+}
+
+
+.fadeOut {
+    pointer-events: none !important;
+    -webkit-animation-duration: .25s;
+    animation-duration: .25s;
+    -webkit-animation-name: fadeOut;
+    animation-name: fadeOut;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards; 
+    pointer-events: none;
+}
